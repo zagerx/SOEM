@@ -378,7 +378,17 @@ int ecx_config_init(ecx_contextt *context)
             /* SII strings section */
             if (ecx_siifind(context, slave, ECT_SII_STRING) > 0)
             {
-               ecx_siistring(context, context->slavelist[slave].name, slave, 1);
+               uint16 name_idx = 1;
+               if (ssigen)
+               {
+                  /* NameIdx is at data byte offset 0x03 in GENERAL category (ETG.1000.6 Table 21) */
+                  name_idx = ecx_siigetbyte(context, slave, ssigen + 0x05);
+                  if (name_idx == 0)
+                  {
+                     name_idx = 1;
+                  }
+               }
+               ecx_siistring(context, context->slavelist[slave].name, slave, name_idx);
             }
             /* no name for slave found, use constructed name */
             else
